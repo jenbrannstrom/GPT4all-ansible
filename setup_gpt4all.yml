@@ -12,25 +12,25 @@
       amazon.aws.ec2_vpc_net:
         name: "your_vpc_name"
         cidr_block: "10.0.0.0/16"
-        region: "us-west-2"
-        aws_access_key: "your_access_key"
-        aws_secret_key: "your_secret_key"
+        region: "us-east-1"
+        aws_access_key: "access-key"
+        aws_secret_key: "secret-key"
       register: vpc
 
     - name: Create an Internet Gateway
       amazon.aws.ec2_vpc_igw:
         vpc_id: "{{ vpc.vpc.id }}"
-        region: "us-west-2"
-        aws_access_key: "your_access_key"
-        aws_secret_key: "your_secret_key"
+        region: "us-east-1"
+        aws_access_key: "access-key"
+        aws_secret_key: "secret-key"
       register: igw
 
     - name: Create a Route Table
       amazon.aws.ec2_vpc_route_table:
         vpc_id: "{{ vpc.vpc.id }}"
-        region: "us-west-2"
-        aws_access_key: "your_access_key"
-        aws_secret_key: "your_secret_key"
+        region: "us-east-1"
+        aws_access_key: "access-key"
+        aws_secret_key: "secret-key"
       register: route_table
 
     - name: Create a subnet
@@ -38,38 +38,38 @@
         state: present
         vpc_id: "{{ vpc.vpc.id }}"
         cidr: "10.0.1.0/24"
-        region: "us-west-2"
-        aws_access_key: "your_access_key"
-        aws_secret_key: "your_secret_key"
+        region: "us-east-1"
+        aws_access_key: "access-key"
+        aws_secret_key: "secret-key"
       register: subnet
 
     - name: Associate Route Table to Subnet
       amazon.aws.ec2_vpc_route_table:
+        state: present
         vpc_id: "{{ vpc.vpc.id }}"
-        route_table_id: "{{ route_table.route_table.id }}"
+        tags:
+          Name: GPT4All Route Table
         subnets:
           - "{{ subnet.subnet.id }}"
         routes:
           - dest: "0.0.0.0/0"
-            gateway_id: "{{ igw.gateway.id }}"
-        region: "us-west-2"
-        aws_access_key: "your_access_key"
-        aws_secret_key: "your_secret_key"
+            gateway_id: "{{ igw.internet_gateway.id }}"
+        aws_access_key: "access-key"
+        aws_secret_key: "secret-key"
 
     - name: Launch Spot instance
-      amazon.aws.ec2:
-        key_name: "your_key_name"
-        instance_type: "t2.micro"
-        image: "ami-0c94855ba95b798c7" # Amazon Linux 2
+      amazon.aws.ec2_instance:
+        state: present
+        key_name: "{{ keypair.key.name }}"
+        instance_type: t2.micro
+        image_id: ami-0c94855ba95b798c7  # Amazon Linux 2 LTS AMI (HVM)
+        wait: true
         vpc_subnet_id: "{{ subnet.subnet.id }}"
-        group: "your_security_group_name"
         instance_tags:
-          Name: "gpt4all-instance"
-        wait: yes
-        spot_price: "0.01"
-        region: "us-west-2"
-        aws_access_key: "your_access_key"
-        aws_secret_key: "your_secret_key"
+          Name: GPT4All Instance
+        spot_price: "0.0075"
+        aws_access_key: "access-key"
+        aws_secret_key: "secret-key"
       register: ec2
 
     - name: Install Git
