@@ -82,4 +82,4 @@
       git:
         repo: 'https://github.com/nomic-ai/gpt4all.git'
         dest: '/home/ec2-user/gpt4all'
-      delegate_to: "{{ ec2.instances[0].public_dns_name }}
+      delegate_to: "{{ ec2.instances[0].public_dns_name }}"
