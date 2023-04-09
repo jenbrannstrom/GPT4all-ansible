@@ -1,4 +1,4 @@
-# Ansible script part 2: Set up GPT4All on AWS instance
+# Ansible script continued: Set up GPT4All on AWS instance
 #
 # Data needed from the AWS admin user:
 # 1. Instance public IP address:
