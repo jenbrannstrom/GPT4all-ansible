@@ -1,5 +1,5 @@
 # This script is supposed to: 
-# 1. create a VPC in yoru AWS account
+# 1. create a VPC in your AWS account
 # 2. Create subnets within the VPC and set up the route table and internet gateway
 # 3. launch Spot instance
 # 4. start one of multiple steps to install GPT4ALL
