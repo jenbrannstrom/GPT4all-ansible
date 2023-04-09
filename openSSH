@@ -2,11 +2,17 @@
 # then, via CLI  check security permissions, to see if the instance allows incoming traffic
 #replace "YOUR_INSTANCE_ID_HERE"
 
-INSTANCE_ID="YOUR_INSTANCE_ID_HERE" # Replace with your instance ID
+'''INSTANCE_ID="YOUR_INSTANCE_ID_HERE" # Replace with your instance ID
 
 SG_ID=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[].Instances[].SecurityGroups[].GroupId' --output text)
 
-aws ec2 describe-security-groups --group-ids $SG_ID --query 'SecurityGroups[].IpPermissions[]' --output json
+aws ec2 describe-security-groups --group-ids $SG_ID --query 'SecurityGroups[].IpPermissions[]' --output json'''
+
+# Get the deets, then run:
+'''aws ec2 authorize-security-group-ingress --group-id sg-"YOUR SECURITY GROUP ID HERE" --protocol tcp --port 22 --cidr "YOUR_IP_ADDRESS/32" '''
 
 
-# Once SSH is open you can proceed to part 2 
+# Once SSH is open you can proceed to part 2, y running:
+
+'''ansible-playbook -i hosts.ini part2.yml'''
+
