@@ -22,7 +22,7 @@
         vpc_id: "{{ vpc.vpc.id }}"
         region: "us-east-1"
         aws_access_key: "access-key"
-        aws_secret_key: "RwrodmNRPXSHt21C2aWwihO4SOiulh/hiU/9Oa8T"
+        aws_secret_key: "secret-key"
       register: igw
 
     - name: Create a Route Table
@@ -30,7 +30,7 @@
         vpc_id: "{{ vpc.vpc.id }}"
         region: "us-east-1"
         aws_access_key: "access-key"
-        aws_secret_key: "RwrodmNRPXSHt21C2aWwihO4SOiulh/hiU/9Oa8T"
+        aws_secret_key: "secret-key"
       register: route_table
 
     - name: Create a subnet
@@ -40,7 +40,7 @@
         cidr: "10.0.1.0/24"
         region: "us-east-1"
         aws_access_key: "access-key"
-        aws_secret_key: "RwrodmNRPXSHt21C2aWwihO4SOiulh/hiU/9Oa8T"
+        aws_secret_key: "secret-key"
       register: subnet
 
     - name: Associate Route Table to Subnet
@@ -55,32 +55,33 @@
           - dest: "0.0.0.0/0"
             gateway_id: "{{ igw.gateway_id }}"
         aws_access_key: "access-key"
-        aws_secret_key: "RwrodmNRPXSHt21C2aWwihO4SOiulh/hiU/9Oa8T"
+        aws_secret_key: "secret-key"
 
     - name: Create a key pair
       amazon.aws.ec2_key:
         name: "Keypair for GPT4ALL"
         region: "us-east-1"
         aws_access_key: "access-key"
-        aws_secret_key: "RwrodmNRPXSHt21C2aWwihO4SOiulh/hiU/9Oa8T"
+        aws_secret_key: "secret-key"
       register: aws_keypair
 
     - name: Launch Spot instance
-      amazon.aws.ec2_instance:
+      amazon.aws.ec2:
         state: present
         key_name: "{{ aws_keypair.key.name }}"
         instance_type: t2.micro
-        image_id: ami-0c94855ba95b798c7  # Amazon Linux 2 LTS AMI (HVM)
-        wait: true
+        image: ami-06e46074ae430fba6  # Amazon Linux 2 LTS AMI (HVM)
+        wait: yes
         vpc_subnet_id: "{{ subnet.subnet.id }}"
-        tags:
+        instance_tags:
           Name: GPT4All Instance
-        spot_instance_request_type: one-time
-        spot_launch_specification:
-          spot_price: "0.0075"
+        spot_price: "0.0075"
+        region: "us-east-1"
         aws_access_key: "access-key"
-        aws_secret_key: "sRwrodmNRPXSHt21C2aWwihO4SOiulh/hiU/9Oa8T"
+        aws_secret_key: "secret-key"
+        instance_initiated_shutdown_behavior: terminate
       register: ec2
+
 
 
 # ... remaining tasks in part 2...
