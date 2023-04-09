@@ -22,7 +22,7 @@
         vpc_id: "{{ vpc.vpc.id }}"
         region: "us-east-1"
         aws_access_key: "access-key"
-        aws_secret_key: "secret-key"
+        aws_secret_key: "RwrodmNRPXSHt21C2aWwihO4SOiulh/hiU/9Oa8T"
       register: igw
 
     - name: Create a Route Table
@@ -30,7 +30,7 @@
         vpc_id: "{{ vpc.vpc.id }}"
         region: "us-east-1"
         aws_access_key: "access-key"
-        aws_secret_key: "secret-key"
+        aws_secret_key: "RwrodmNRPXSHt21C2aWwihO4SOiulh/hiU/9Oa8T"
       register: route_table
 
     - name: Create a subnet
@@ -40,7 +40,7 @@
         cidr: "10.0.1.0/24"
         region: "us-east-1"
         aws_access_key: "access-key"
-        aws_secret_key: "secret-key"
+        aws_secret_key: "RwrodmNRPXSHt21C2aWwihO4SOiulh/hiU/9Oa8T"
       register: subnet
 
     - name: Associate Route Table to Subnet
@@ -53,33 +53,34 @@
           - "{{ subnet.subnet.id }}"
         routes:
           - dest: "0.0.0.0/0"
-            gateway_id: "{{ igw.internet_gateway.id }}"
+            gateway_id: "{{ igw.gateway_id }}"
         aws_access_key: "access-key"
-        aws_secret_key: "secret-key"
+        aws_secret_key: "RwrodmNRPXSHt21C2aWwihO4SOiulh/hiU/9Oa8T"
+
+    - name: Create a key pair
+      amazon.aws.ec2_key:
+        name: "Keypair for GPT4ALL"
+        region: "us-east-1"
+        aws_access_key: "access-key"
+        aws_secret_key: "RwrodmNRPXSHt21C2aWwihO4SOiulh/hiU/9Oa8T"
+      register: aws_keypair
 
     - name: Launch Spot instance
       amazon.aws.ec2_instance:
         state: present
-        key_name: "{{ keypair.key.name }}"
+        key_name: "{{ aws_keypair.key.name }}"
         instance_type: t2.micro
         image_id: ami-0c94855ba95b798c7  # Amazon Linux 2 LTS AMI (HVM)
         wait: true
         vpc_subnet_id: "{{ subnet.subnet.id }}"
-        instance_tags:
+        tags:
           Name: GPT4All Instance
-        spot_price: "0.0075"
+        spot_instance_request_type: one-time
+        spot_launch_specification:
+          spot_price: "0.0075"
         aws_access_key: "access-key"
-        aws_secret_key: "secret-key"
+        aws_secret_key: "sRwrodmNRPXSHt21C2aWwihO4SOiulh/hiU/9Oa8T"
       register: ec2
 
-    - name: Install Git
-      package:
-        name: git
-        state: present
-      delegate_to: "{{ ec2.instances[0].public_dns_name }}"
 
-    - name: Clone GPT4All repository
-      git:
-        repo: 'https://github.com/nomic-ai/gpt4all.git'
-        dest: '/home/ec2-user/gpt4all'
-      delegate_to: "{{ ec2.instances[0].public_dns_name }}"
+# ... remaining tasks in part 2...
