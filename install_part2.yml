@@ -1,0 +1,80 @@
+# Ansible script part 2: Set up GPT4All on AWS instance
+#
+# Data needed from the AWS admin user:
+# 1. Instance public IP address:
+#    - Found in AWS Console > EC2 > Instances, under "IPv4 Public IP" column.
+#    - Extracted using AWS CLI:
+#      aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId,PublicIpAddress]' --output text
+# 2. Path to private key file (e.g., /path/to/private/key)
+#    - Generated during part 1 of the Ansible script.
+#
+# Replace <instance-public-ip> with the actual public IP address of the instance.
+# Replace /path/to/private/key with the path to the private key file.
+
+- name: Set up GPT4All on AWS instance
+  hosts: <instance-public-ip>
+  vars:
+    ansible_ssh_private_key_file: /path/to/private/key
+    ansible_user: ec2-user
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: Update the package manager
+      become: yes
+      yum:
+        name: "*"
+        state: latest
+
+    - name: Install Docker and its dependencies
+      become: yes
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - docker
+        - docker-compose
+        - python3-pip
+
+    - name: Start and enable Docker service
+      become: yes
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add ec2-user to the docker group
+      become: yes
+      ansible.builtin.user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    - name: Install the AWS CLI
+      become: yes
+      ansible.builtin.pip:
+        name: awscli
+        state: latest
+        executable: pip3
+
+    - name: Clone the GPT4All repository
+      ansible.builtin.git:
+        repo: https://github.com/your/gpt4all-repo.git
+        dest: /home/ec2-user/gpt4all
+
+    # Add tasks to set up GPT4All application as per its official documentation.
+    # This might involve:
+    # - Configuring environment variables and API keys
+    # - Running Docker Compose to launch the application
+
+    # - name: Example task to set environment variables
+    #   become: yes
+    #   ansible.builtin.template:
+    #     src: path/to/env/file.j2
+    #     dest: /home/ec2-user/gpt4all/.env
+
+    # - name: Example task to run Docker Compose
+    #   become: yes
+    #   ansible.builtin.shell: docker-compose up -d
+    #   args:
+    #     chdir: /home/ec2-user/gpt4all
+
+# Replace the placeholders with actual data and uncomment the tasks as needed.
