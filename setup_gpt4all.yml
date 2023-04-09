@@ -70,8 +70,8 @@
         region: "us-east-1"
         aws_access_key: "access-key"
         aws_secret_key: "secret-key"
-        public_key_material: "{{ rsa_keypair.public_key }}"
-
+        key_material: "{{ rsa_keypair.public_key }}"
+      register: aws_keypair
 
     - name: Launch Spot instance
       amazon.aws.ec2:
