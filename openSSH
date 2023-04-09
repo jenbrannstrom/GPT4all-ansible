@@ -1,0 +1,12 @@
+# via Console attach an (elastic) ip address
+# then, via CLI  check security permissions, to see if the instance allows incoming traffic
+#replace "YOUR_INSTANCE_ID_HERE"
+
+INSTANCE_ID="YOUR_INSTANCE_ID_HERE" # Replace with your instance ID
+
+SG_ID=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[].Instances[].SecurityGroups[].GroupId' --output text)
+
+aws ec2 describe-security-groups --group-ids $SG_ID --query 'SecurityGroups[].IpPermissions[]' --output json
+
+
+# Once SSH is open you can proceed to part 2 
