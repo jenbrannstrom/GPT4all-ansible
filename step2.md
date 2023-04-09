@@ -8,13 +8,21 @@
 
     aws ec2 describe-security-groups --group-ids $SG_ID --query 'SecurityGroups[].IpPermissions[]' --output json```
 
+
 # save it in the same DIR adn run that file using :
 # make the script executable by:
+
+
 ```chmod +x check_security_group_rules.sh```
+
 # Then
+
+
 ```./check_security_group_rules.sh```
 
+
 # Get the deets, then run:
+
 ```aws ec2 authorize-security-group-ingress --group-id sg-"YOUR SECURITY GROUP ID HERE" --protocol tcp --port 22 --cidr "YOUR_IP_ADDRESS/32" ```
 
 
