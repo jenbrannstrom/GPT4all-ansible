@@ -57,13 +57,21 @@
         aws_access_key: "access-key"
         aws_secret_key: "secret-key"
 
-    - name: Create a key pair
+    - name: Generate an RSA key pair
+      ansible.builtin.openssh_keypair:
+        path: "{{ playbook_dir }}/keypair_for_gpt4all"
+        type: rsa
+        size: 2048
+      register: rsa_keypair
+
+    - name: Import the public key to AWS
       amazon.aws.ec2_key:
         name: "Keypair for GPT4ALL"
         region: "us-east-1"
         aws_access_key: "access-key"
         aws_secret_key: "secret-key"
-      register: aws_keypair
+        public_key_material: "{{ rsa_keypair.public_key }}"
+
 
     - name: Launch Spot instance
       amazon.aws.ec2:
