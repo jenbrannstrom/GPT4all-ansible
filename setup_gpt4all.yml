@@ -72,10 +72,9 @@
         name: "Keypair for GPT4ALL"
         region: "us-east-1"
         AWS_ACCESS_KEY_ID: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
-       
-    AWS_SECRET_ACCESS_KEY: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
-    key_material: "{{ rsa_keypair.public_key }}"
-  register: aws_keypair
+        AWS_SECRET_ACCESS_KEY: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+        key_material: "{{ rsa_keypair.public_key }}"
+      register: aws_keypair
   
     - name: Launch Spot instance
       amazon.aws.ec2:
@@ -89,10 +88,11 @@
           Name: GPT4All Instance
         spot_price: "0.0075"
         region: "us-east-1"
-        AWS_ACCESS_KEY_ID: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
-        AWS_SECRET_ACCESS_KEY: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+        aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+        aws_secret_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
         instance_initiated_shutdown_behavior: terminate
       register: ec2
+
 
     - name: Allocate a new Elastic IP
       amazon.aws.ec2_eip:
@@ -176,7 +176,7 @@
           ansible.builtin.git:
             repo: https://github.com/nomic-ai/gpt4all.git
             dest: /home/ec2-user/gpt4all
-
+              
         - name: Install Python packages from requirements.txt
           ansible.builtin.pip:
             chdir: /home/ec2-user/gpt4all
