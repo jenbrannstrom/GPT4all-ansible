@@ -8,7 +8,10 @@ Ansible script to set up [GPT4ALL](https://github.com/nomic-ai/gpt4all) on an AW
 4. install
 ```ansible-galaxy collection install amazon.aws```
 
-5. before running the ansible script, you need to set the access & secret from AWS:
+5. install botocore
+```pip install boto3 botocore```
+
+6. before running the ansible script, you need to set the access & secret from AWS:
 ```export AWS_ACCESS_KEY_ID='YOUR AWS ACCESS KEY'``` AND
 ```export AWS_SECRET_ACCESS_KEY='YOUR AWS SECRET'```
 
