@@ -9,9 +9,7 @@ Steps
 ```sudo apt install ansible```
 
 - install
-```ansible-galaxy collection install amazon.aws```
-and
-```ansible-galaxy collection install community.aws```
+```ansible-galaxy collection install amazon.aws community.aws```
 
 - install botocore
 ```pip install boto3 botocore```
