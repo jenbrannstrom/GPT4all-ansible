@@ -1,0 +1,17 @@
+---
+key_name: "keypair_for_gpt4all"
+key_file: "{{ playbook_dir }}/keys/{{ key_name }}"
+aws_profile: "default"
+launch_template_name: "GPT4All-Launch-Template"
+region: "us-east-1"
+instance_type: "t2.micro"
+image_id: "ami-06e46074ae430fba6"
+max_spot_price: "0.05"
+wait_timeout: 600
+spot_wait_timeout: 600
+vpc_subnet_id: "{{ vpc_subnet_id }}"
+security_group_id: "{{ security_group_id }}"
+instance_name: "GPT4All Instance"
+aws_access_key_id: "{{ lookup('file', 'keys/aws_access_credentials.yml') | from_yaml }}['aws_access_key_id']"
+aws_secret_access_key: "{{ lookup('file', 'keys/aws_access_credentials.yml') | from_yaml }}['aws_secret_access_key']"
+

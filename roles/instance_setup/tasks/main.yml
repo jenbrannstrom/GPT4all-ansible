@@ -1,0 +1,67 @@
+- name: Request Spot instance
+  amazon.aws.ec2_spot_instance:
+    spot_price: "{{ max_spot_price }}"
+    state: present
+    region: "{{ region }}"
+    launch_specification:
+      image_id: "{{ image_id }}"
+      instance_type: "{{ instance_type }}"
+      key_name: "{{ key_name }}"
+      security_group_ids: ["{{ security_group_id }}"]
+      subnet_id: "{{ vpc_subnet_id }}"
+      block_device_mappings:
+        - device_name: /dev/sda1
+          ebs:
+            volume_size: 8
+            volume_type: gp2
+            delete_on_termination: true
+    tags:
+      Name: "{{ instance_name }}"
+  register: spot_instance
+
+- name: Wait for spot instance request to be active
+  command: "aws ec2 describe-spot-instance-requests --spot-instance-request-ids {{ spot_instance.spot_request.spot_instance_request_id }} --region {{ region }}"
+  register: spot_instance_request
+  until: spot_instance_request.stdout | from_json | json_query('SpotInstanceRequests[0].Status.Code') == "fulfilled"
+  retries: 30
+  delay: 10
+
+- name: Get instance ID from Spot instance request
+  set_fact:
+    resource_id: "{{ spot_instance_request.stdout | from_json | json_query('SpotInstanceRequests[0].InstanceId') }}"
+
+- name: Tag Spot instance
+  amazon.aws.ec2_tag:
+    resource: "{{ resource_id }}"
+    tags:
+      Name: "{{ instance_name }}"
+    state: present
+    region: "{{ region }}"
+    aws_profile: "{{ aws_profile }}"
+
+- name: request new Elastic IP address
+  community.aws.ec2_eip:
+    state: present
+    region: "{{ region }}"
+    aws_profile: "{{ aws_profile }}"
+  register: eip
+
+- name: Wait for instance to reach the running state
+  community.aws.ec2_instance_info:
+    region: "{{ region }}"
+    aws_profile: "{{ aws_profile }}"
+    instance_ids:
+      - "{{ resource_id }}"
+  register: ec2_instance_running
+  until: ec2_instance_running.instances[0].state.name == 'running'
+  retries: 10
+  delay: 10
+
+- name: confirm Elastic IP with instance
+  community.aws.ec2_eip:
+    state: present
+    region: "{{ region }}"
+    aws_profile: "{{ aws_profile }}"
+    public_ip: "{{ eip.public_ip }}"
+    device_id: "{{ resource_id }}"
+  register: eip_association
